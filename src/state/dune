@@ -30,7 +30,7 @@
  (name token_index)
  (wrapped false)
  (modules Token_index)
- (libraries lwt learnocaml_data)
+ (libraries lwt learnocaml_api learnocaml_data)
 )
 
 (library
