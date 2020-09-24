@@ -54,18 +54,26 @@ module IndexFile: IndexRW = struct
   let read mutex filename parse =
     Lwt_mutex.with_lock mutex @@
       fun () ->
+      Printexc.get_callstack 10
+      |> Printexc.raw_backtrace_to_string
+      |> Lwt_io.printf "entering read\n%s" >>= fun () ->
       Lwt_io.with_file ~mode:Lwt_io.Input filename @@
         fun channel ->
         Lwt_io.read channel >>= fun data ->
+        Lwt_io.printl "exiting read\n" >>= fun () ->
         Lwt.return @@ parse data
 
   let write mutex filename serialise data =
     Lwt_mutex.with_lock mutex @@
       fun () ->
+      Printexc.get_callstack 10
+      |> Printexc.raw_backtrace_to_string
+      |> Lwt_io.printf "entering write\n%s" >>= fun () ->
       Lwt_utils.mkdir_p ~perm:0o700 (Filename.dirname filename) >>= fun () ->
       Lwt_io.with_file ~mode:Lwt_io.Output filename @@
         fun channel ->
-        Lwt_io.write channel (serialise data)
+        Lwt_io.write channel (serialise data) >>= fun () ->
+        Lwt_io.printl "exiting write\n"
 end
 
 (* inspired from learnocaml_data.ml *)
